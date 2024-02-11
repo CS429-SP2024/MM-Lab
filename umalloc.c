@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "ansicolors.h"
 
-const char author[] = ANSI_BOLD ANSI_COLOR_RED "REPLACE THIS WITH YOUR NAME AND UT EID" ANSI_RESET;
+const char author[] = ANSI_BOLD ANSI_COLOR_RED "LEUL DAGNACHEW lmd3287" ANSI_RESET;
 
 /*
  * The following helpers can be used to interact with the memory_block_t
@@ -94,6 +94,18 @@ memory_block_t *get_block(void *payload) {
  */
 memory_block_t *find(size_t size) {
     //* STUDENT TODO
+    // Step 2: traverse through our free list, determine what we want to give to the user.
+    memory_block_t *temp = free_head;
+    while(temp != NULL) {
+        // first off, if we are at an allocated node, we can't touch that, so move on. 
+        if(!is_allocated(temp)){
+            // in this case, we are implementing a first fit algorithm.
+            if(get_size(temp) == size) {
+                return temp;
+            }
+        }
+        temp = temp->next;
+    }
     return NULL;
 }
 
@@ -137,6 +149,12 @@ int uinit() {
  */
 void *umalloc(size_t size) {
     //* STUDENT TODO
+    // Step 1: the easy part. Calculate how much we are ACTUALLY going to give to the mutator.
+    if(size % 16 != 0) {
+        size = 16 - (size % 16) + size;
+        printf("%ld", size);
+    }   
+    find(size);
     return NULL;
 }
 
