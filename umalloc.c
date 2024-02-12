@@ -100,9 +100,14 @@ memory_block_t *find(size_t size) {
         // first off, if we are at an allocated node, we can't touch that, so move on. 
         if(!is_allocated(temp)){
             // in this case, we are implementing a first fit algorithm.
-            if(get_size(temp) == size) {
-                return temp;
+            size_t blockSize = get_size(temp);
+            if(blockSize >= size) {
+               return temp;
             }
+        }
+        if(temp->next == NULL) {
+            temp->next = extend(size);
+            return temp->next;
         }
         temp = temp->next;
     }
@@ -114,7 +119,12 @@ memory_block_t *find(size_t size) {
  */
 memory_block_t *extend(size_t size) {
     //* STUDENT TODO
-    return NULL;
+    if(size == 0) {
+        return NULL;
+    }
+    memory_block_t *temp = (memory_block_t *)csbrk(size);
+    put_block(temp, size, 0);
+    return temp;
 }
 
 /*
@@ -122,6 +132,7 @@ memory_block_t *extend(size_t size) {
  */
 memory_block_t *split(memory_block_t *block, size_t size) {
     //* STUDENT TODO
+    // initialize our new block.
     return NULL;
 }
 
@@ -141,6 +152,8 @@ memory_block_t *coalesce(memory_block_t *block) {
  */
 int uinit() {
     //* STUDENT TODO
+    csbrk(PAGESIZE);
+    free_head = (memory_block_t *)csbrk(PAGESIZE);
     return 0;
 }
 
@@ -154,8 +167,7 @@ void *umalloc(size_t size) {
         size = 16 - (size % 16) + size;
         printf("%ld", size);
     }   
-    find(size);
-    return NULL;
+    return find(size);
 }
 
 /*
