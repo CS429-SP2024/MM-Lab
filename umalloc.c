@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "ansicolors.h"
 
-const char author[] = ANSI_BOLD ANSI_COLOR_RED "REPLACE THIS WITH YOUR NAME AND UT EID" ANSI_RESET;
+const char author[] = ANSI_BOLD ANSI_COLOR_RED "LEUL DAGNACHEW lmd3287" ANSI_RESET;
 
 /*
  * The following helpers can be used to interact with the memory_block_t
@@ -94,6 +94,23 @@ memory_block_t *get_block(void *payload) {
  */
 memory_block_t *find(size_t size) {
     //* STUDENT TODO
+    // Step 2: traverse through our free list, determine what we want to give to the user.
+    memory_block_t *temp = free_head;
+    while(temp != NULL) {
+        // first off, if we are at an allocated node, we can't touch that, so move on. 
+        if(!is_allocated(temp)){
+            // in this case, we are implementing a first fit algorithm.
+            size_t blockSize = get_size(temp);
+            if(blockSize >= size) {
+               return temp;
+            }
+        }
+        if(temp->next == NULL) {
+            temp->next = extend(size);
+            return temp->next;
+        }
+        temp = temp->next;
+    }
     return NULL;
 }
 
@@ -102,7 +119,12 @@ memory_block_t *find(size_t size) {
  */
 memory_block_t *extend(size_t size) {
     //* STUDENT TODO
-    return NULL;
+    if(size == 0) {
+        return NULL;
+    }
+    memory_block_t *temp = (memory_block_t *)csbrk(size);
+    put_block(temp, size, 0);
+    return temp;
 }
 
 /*
@@ -110,6 +132,7 @@ memory_block_t *extend(size_t size) {
  */
 memory_block_t *split(memory_block_t *block, size_t size) {
     //* STUDENT TODO
+    // initialize our new block.
     return NULL;
 }
 
@@ -129,6 +152,8 @@ memory_block_t *coalesce(memory_block_t *block) {
  */
 int uinit() {
     //* STUDENT TODO
+    csbrk(PAGESIZE);
+    free_head = (memory_block_t *)csbrk(PAGESIZE);
     return 0;
 }
 
@@ -137,7 +162,12 @@ int uinit() {
  */
 void *umalloc(size_t size) {
     //* STUDENT TODO
-    return NULL;
+    // Step 1: the easy part. Calculate how much we are ACTUALLY going to give to the mutator.
+    if(size % 16 != 0) {
+        size = 16 - (size % 16) + size;
+        printf("%ld", size);
+    }   
+    return find(size);
 }
 
 /*
