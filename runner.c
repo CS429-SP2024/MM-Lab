@@ -14,7 +14,7 @@
 #include <sys/mman.h>
 
 int verbose = 0;
-char msg[MAXLINE];      /* for whenever we need to compose an error message */
+extern char msg[MAXLINE];      /* for whenever we need to compose an error message */
 extern size_t sbrk_bytes;
 extern const char author[];
 
